@@ -79,6 +79,50 @@ Loop:
 	return
 }
 
+func startPage() {
+	c := colly.NewCollector(
+		colly.AllowURLRevisit(),
+		colly.UserAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"),
+	)
+	c.OnRequest(func(r *colly.Request) {
+		fmt.Println("Visiting: ", r.URL)
+		r.Headers.Set("Accept", "*/*")
+		// r.Headers.Set(":authority", "www.animeout.xyz")
+		// r.Headers.Set(":method", "POST")
+		// r.Headers.Set(":path", "/tokyo-revengers-1080p-300mb720p-150mbepisode-1/")
+		// r.Headers.Set(":scheme", "https")
+		r.Headers.Set("accept-encoding", "gzip, deflate, br")
+		r.Headers.Set("accept-language", "en-GB,en;q=0.6")
+		r.Headers.Set("cache-control", "max-age=0")
+		r.Headers.Set("content-type", "application/x-www-form-urlencoded")
+		r.Headers.Set("origin", "https://www.animeout.xyz")
+		// r.Headers.Set("sec-ch-ua", "Brave";v="111", "Not(A:Brand";v="8", "Chromium";v="111")
+		r.Headers.Set("sec-ch-ua-platform", "Linux")
+		r.Headers.Set("upgrade-insecure-requests", "1")
+		r.Headers.Set("cookie", "PHPSESSID=egthsq71sj4rmi80hue3omdk5p; spu_closing_118900=true; cf_chl_2=6686f7cdf590d43; cf_clearance=xPCX71b70VvSnMGxxshtlFplg9XMgvuYazIJj1.MeC0-1680768349-0-160")
+	})
+
+	c.OnError(func(_ *colly.Response, err error) {
+		log.Println("Something went wrong: ", err.Error())
+	})
+
+	c.OnResponse(func(r *colly.Response) {
+		fmt.Println("Page visited: ", r.Request.URL)
+	})
+
+	c.OnHTML("body", func(e *colly.HTMLElement) {
+		c.DetectCharset = true
+		fmt.Println(e.Text)
+	})
+
+	c.OnScraped(func(r *colly.Response) {
+		fmt.Println(r.Request.URL, " scraped!")
+	})
+	c.Visit("https://www.animeout.xyz/tokyo-revengers-1080p-300mb720p-150mbepisode-1/")
+	return
+}
+
 func main() {
-	fmt.Println(getAnimeListing())
+	// fmt.Println(getAnimeListing())
+	startPage()
 }
